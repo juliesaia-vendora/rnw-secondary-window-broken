@@ -45,40 +45,6 @@ namespace starter
 
             Host.InstanceSettings.InstanceCreated += OnReactInstanceCreated;
 
-            ReactInstanceSettings ris = new ReactInstanceSettings()
-            {
-#if BUNDLE
-                JavaScriptBundleFile = "index_SecondaryWindow.windows",
-                UseFastRefresh = false,
-#else
-                JavaScriptBundleFile = "index_SecondaryWindow",
-                UseFastRefresh = true,
-#endif
-
-#if DEBUG
-                UseDirectDebugger = true,
-                UseDeveloperSupport = true,
-#else
-                UseDirectDebugger = false,
-                UseDeveloperSupport = false,
-#endif
-            };
-
-            ris.Properties.Set(
-                ReactPropertyBagHelper.GetName(
-                    ReactPropertyBagHelper.GetNamespace("ReactNative.Dispatcher"),
-                    "UIDispatcher"
-                ),
-                ris.UIDispatcher
-            );
-
-            SecondaryHost = new ReactNativeHost() { InstanceSettings = ris, };
-
-            Microsoft.ReactNative.Managed.AutolinkedNativeModules.RegisterAutolinkedNativeModulePackages(
-                SecondaryHost.PackageProviders
-            );
-            SecondaryHost.PackageProviders.Add(new ReactPackageProvider());
-
             InitializeComponent();
         }
 
@@ -126,6 +92,40 @@ namespace starter
         public async Task OpenSecondaryWindow()
         {
             CoreApplicationView newView = CoreApplication.CreateNewView();
+            ReactInstanceSettings ris = new ReactInstanceSettings()
+            {
+#if BUNDLE
+                JavaScriptBundleFile = "index_SecondaryWindow.windows",
+                UseFastRefresh = false,
+#else
+                JavaScriptBundleFile = "index_SecondaryWindow",
+                UseFastRefresh = true,
+#endif
+
+#if DEBUG
+                UseDirectDebugger = true,
+                UseDeveloperSupport = true,
+#else
+                UseDirectDebugger = false,
+                UseDeveloperSupport = false,
+#endif
+            };
+
+            ris.Properties.Set(
+                ReactPropertyBagHelper.GetName(
+                    ReactPropertyBagHelper.GetNamespace("ReactNative.Dispatcher"),
+                    "UIDispatcher"
+                ),
+                newView.Dispatcher
+            );
+
+            SecondaryHost = new ReactNativeHost() { InstanceSettings = ris, };
+
+            Microsoft.ReactNative.Managed.AutolinkedNativeModules.RegisterAutolinkedNativeModulePackages(
+                SecondaryHost.PackageProviders
+            );
+            SecondaryHost.PackageProviders.Add(new ReactPackageProvider());
+
             int newViewId = 0;
             await newView.Dispatcher.RunAsync(
                 CoreDispatcherPriority.Normal,
